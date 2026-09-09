@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>大安大甲聯合運用－原水費計價情境討論</title>
+<style>
+:root{
+  --bg:#f4f6f8; --panel:#fff; --ink:#1f2d3d; --muted:#6c7b89;
+  --line:#d9e0e6; --accent:#2d4b66; --selected:#e8eef3;
+  --row-font:21px; --row-gap:13px; --row-pad-y:12px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);background:var(--bg);overflow:hidden
+}
+button{font:inherit}
+.app{height:100vh;display:grid;grid-template-rows:auto 1fr}
+.header{
+  min-height:78px;padding:17px 28px 15px;background:#fff;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;gap:18px
+}
+.header-title h1{margin:0;font-size:clamp(22px,2vw,30px);line-height:1.25;font-weight:760;letter-spacing:.01em}
+.header-title p{margin:5px 0 0;font-size:14px;color:var(--muted)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.tool-btn{
+  border:1px solid #cfd8df;background:#fff;color:#36495b;padding:8px 13px;border-radius:9px;cursor:pointer;
+  transition:.15s ease;white-space:nowrap
+}
+.tool-btn:hover{background:#f2f5f7;border-color:#bcc7cf}
+.main{min-height:0;display:grid;grid-template-columns:minmax(420px,42%) minmax(520px,58%);gap:1px;background:var(--line)}
+.tree-panel,.detail-panel{min-height:0;background:#fff}
+.tree-panel{overflow:auto;padding:24px 24px 28px 26px}
+.tree-list{display:flex;flex-direction:column;gap:var(--row-gap);min-height:100%}
+.tree-row{
+  position:relative;display:flex;align-items:center;gap:10px;min-height:calc(var(--row-font)*2.08);
+  padding:var(--row-pad-y) 14px var(--row-pad-y) 12px;border-radius:10px;cursor:pointer;user-select:none;
+  color:#2b3d4e;transition:background .14s ease,transform .14s ease,opacity .14s ease;
+  font-size:var(--row-font);line-height:1.32;margin-left:calc((var(--level) - 1) * 28px);border:1px solid transparent
+}
+.tree-row:hover{background:#f4f7f9}
+.tree-row.selected{background:var(--selected);border-color:#d4dee6;color:#20384d;font-weight:720;transform:translateX(2px)}
+.tree-row.selected::before{content:"";position:absolute;left:-1px;top:9px;bottom:9px;width:4px;border-radius:4px;background:var(--accent)}
+.tree-row.ancestor{font-size:calc(var(--row-font)*.95);color:#4d5c69}
+.tree-row.context-dim{font-size:calc(var(--row-font)*.97)}
+.tree-row.weak{opacity:.55}
+.tree-row.level-1{font-weight:710}.tree-row.level-2{font-weight:630}
+.tree-row.selected{font-size:calc(var(--row-font)*1.08)}
+.caret{flex:0 0 22px;height:22px;display:grid;place-items:center;color:#617180;font-size:.98em;transition:transform .14s ease}
+.caret.open{transform:rotate(90deg)} .caret.leaf{opacity:0}
+.row-main{min-width:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.row-title{min-width:0}
+.badge{display:inline-flex;align-items:center;min-height:24px;padding:3px 8px;border-radius:999px;border:1px solid transparent;font-size:12px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.badge.confirmed{background:#edf4f0;border-color:#d5e4dc;color:#416254}
+.badge.meeting{background:#f7f1e4;border-color:#ead8ad;color:#775f24}
+.badge.test{background:#f0eff7;border-color:#d9d4ea;color:#5f577b}
+.badge.operation{background:#edf2f6;border-color:#d4dfe8;color:#506779}
+.badge.rare{background:#f2f2f2;border-color:#dedede;color:#777}
+.badge.info{background:#eef2f3;border-color:#d7dfe1;color:#56676a}
+
+.detail-panel{overflow:auto;padding:30px 36px 38px;display:flex;align-items:flex-start;justify-content:center}
+.detail-wrap{width:min(920px,100%);margin:auto 0}
+.blank-state{min-height:360px;display:flex;align-items:center;justify-content:center;color:#8793a0;font-size:18px}
+.detail-card{border:1px solid #dde3e8;border-radius:16px;background:#fff;box-shadow:0 10px 30px rgba(27,45,62,.05);padding:30px 34px}
+.detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.detail-title{margin:0;font-size:clamp(29px,2.6vw,40px);line-height:1.3;font-weight:780;letter-spacing:.01em;color:#203246}
+.detail-body{margin-top:20px}
+.detail-summary{margin:0;font-size:clamp(20px,1.45vw,24px);line-height:1.7;color:#2d4153;font-weight:660}
+.detail-text{margin:12px 0 0;font-size:clamp(18px,1.18vw,21px);line-height:1.85;color:#435363;white-space:pre-line}
+.detail-body:empty{display:none}
+.topic-area{margin-top:22px}
+.topic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.topic-card{border:1px solid #dde4e9;border-radius:13px;padding:20px 22px;background:#fbfcfd;min-width:0}
+.topic-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.topic-title{margin:0;font-size:clamp(20px,1.35vw,24px);line-height:1.42;font-weight:740;color:#263a4d}
+.topic-summary{margin:14px 0 0;font-size:17px;line-height:1.7;font-weight:650;color:#32485b}
+.topic-text{margin:9px 0 0;font-size:16px;line-height:1.8;color:#526170;white-space:pre-line}
+.topic-card.weak{opacity:.64}
+.topic-grid.single{grid-template-columns:1fr}
+@media (max-width:1200px){.topic-grid{grid-template-columns:1fr}}
+@media (max-width:1000px){
+  body{overflow:auto}.app{height:auto;min-height:100vh}.main{grid-template-columns:1fr}.tree-panel,.detail-panel{overflow:visible}
+  .tree-panel{padding-bottom:18px}.detail-panel{padding:20px 24px 34px}.header{align-items:flex-start;flex-direction:column}.toolbar{justify-content:flex-start}
+}
+@media print{
+  body{overflow:visible;background:#fff}.header{padding:12mm 14mm;border-bottom:1px solid #aaa}.toolbar{display:none}.app{height:auto}.main{display:block;background:#fff}
+  .tree-panel{display:none}.detail-panel{padding:12mm 14mm;overflow:visible}.detail-card{box-shadow:none;border:none;padding:0}.topic-card{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="header-title">
+      <h1>大安大甲聯合運用－原水費計價情境討論</h1>
+      <p>依情境逐層展開，選取項目查看相關議題。</p>
+    </div>
+    <div class="toolbar">
+      <button class="tool-btn" id="expandAll" type="button">全部展開</button>
+      <button class="tool-btn" id="collapseAll" type="button">全部收合</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="tree-panel" id="treePanel" aria-label="情境樹狀導覽">
+      <div class="tree-list" id="treeList"></div>
+    </section>
+
+    <section class="detail-panel" aria-live="polite">
+      <div class="detail-wrap" id="detailWrap"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+const NODES = __NODES_JSON__;
+
+const nodeById = new Map(NODES.map(n => [n.node_id, n]));
+const childrenByParent = new Map();
+for (const node of NODES) {
+  const key = node.parent_id ?? "__ROOT__";
+  if (!childrenByParent.has(key)) childrenByParent.set(key, []);
+  childrenByParent.get(key).push(node);
+}
+for (const list of childrenByParent.values()) list.sort((a,b)=>Number(a.sort_order)-Number(b.sort_order));
+
+const treeList = document.getElementById("treeList");
+const treePanel = document.getElementById("treePanel");
+const detailWrap = document.getElementById("detailWrap");
+const expanded = new Set(["root"]);
+let selectedId = "root";
+
+const statusClass = {
+  "已確認":"confirmed","待正式會議":"meeting","待試運轉":"test","待營運驗證":"operation","原則不發生":"rare","操作背景":"info"
+};
+function escapeHtml(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function badgeHTML(status){return status ? `<span class="badge ${statusClass[status]||"info"}">${escapeHtml(status)}</span>` : ""}
+function navChildren(id){return (childrenByParent.get(id)||[]).filter(n=>n.node_type!=="topic")}
+function topicChildren(id){return (childrenByParent.get(id)||[]).filter(n=>n.node_type==="topic")}
+function hasNavChildren(id){return navChildren(id).length>0}
+
+function visibleNodes(){
+  const out=[];
+  function walk(parentId){
+    for (const n of navChildren(parentId)) {
+      out.push(n);
+      if (expanded.has(n.node_id)) walk(n.node_id);
+    }
+  }
+  walk("root");
+  return out;
+}
+function ancestorsOf(id){
+  const set=new Set(); let cur=nodeById.get(id);
+  while(cur && cur.parent_id && cur.parent_id!=="root") { set.add(cur.parent_id); cur=nodeById.get(cur.parent_id); }
+  return set;
+}
+function updateSizing(count){
+  let font,gap,pady;
+  if(count<=4){font=28;gap=22;pady=18}
+  else if(count<=8){font=23;gap=15;pady=14}
+  else if(count<=12){font=20;gap=10;pady=10}
+  else{font=17.5;gap=7;pady=7}
+  const available=Math.max(520,treePanel.clientHeight-48);
+  const densityTarget=Math.max(15,Math.min(28,available/Math.max(count,1)/2.3));
+  font=Math.max(16.5,Math.min(font,densityTarget+7));
+  treePanel.style.setProperty("--row-font",`${font}px`);
+  treePanel.style.setProperty("--row-gap",`${gap}px`);
+  treePanel.style.setProperty("--row-pad-y",`${pady}px`);
+}
+function renderTree(){
+  const visible=visibleNodes(); updateSizing(visible.length); const ancestorSet=ancestorsOf(selectedId); treeList.innerHTML="";
+  for (const node of visible) {
+    const row=document.createElement("div");
+    row.className=`tree-row level-${node.level}`; row.style.setProperty("--level",node.level); row.dataset.id=node.node_id;
+    if(node.node_id===selectedId) row.classList.add("selected"); else if(ancestorSet.has(node.node_id)) row.classList.add("ancestor"); else row.classList.add("context-dim");
+    if(node.status==="原則不發生") row.classList.add("weak");
+    const childExists=hasNavChildren(node.node_id); const caretClass=childExists ? (expanded.has(node.node_id)?"open":"") : "leaf";
+    row.innerHTML=`<span class="caret ${caretClass}" aria-hidden="true">›</span><span class="row-main"><span class="row-title">${escapeHtml(node.title)}</span>${badgeHTML(node.status)}</span>`;
+    row.addEventListener("click",()=>{
+      selectedId=node.node_id;
+      if(childExists){ if(expanded.has(node.node_id)) expanded.delete(node.node_id); else expanded.add(node.node_id); }
+      renderTree(); renderDetail(); keepSelectedComfortablyVisible();
+    });
+    treeList.appendChild(row);
+  }
+}
+function contentHTML(node, clsPrefix="detail"){
+  const parts=[];
+  if(node.summary && String(node.summary).trim()) parts.push(`<p class="${clsPrefix}-summary">${escapeHtml(node.summary)}</p>`);
+  if(node.details && String(node.details).trim()) parts.push(`<p class="${clsPrefix}-text">${escapeHtml(node.details)}</p>`);
+  return parts.join("");
+}
+function renderDetail(){
+  const node=nodeById.get(selectedId)||nodeById.get("root");
+  if(node.node_id==="root"){
+    detailWrap.innerHTML=`<div class="blank-state">請選擇左側情境</div>`;
+    return;
+  }
+  const topics=topicChildren(node.node_id);
+  const mainContent=contentHTML(node,"detail");
+  let topicHTML="";
+  if(topics.length){
+    topicHTML=`<div class="topic-area"><div class="topic-grid ${topics.length===1?"single":""}">`+
+      topics.map(t=>`<section class="topic-card ${t.status==="原則不發生"?"weak":""}">
+        <div class="topic-head"><h3 class="topic-title">${escapeHtml(t.title)}</h3>${badgeHTML(t.status)}</div>
+        ${contentHTML(t,"topic")}
+      </section>`).join("")+`</div></div>`;
+  }
+  detailWrap.innerHTML=`<article class="detail-card">
+    <div class="detail-head"><h2 class="detail-title">${escapeHtml(node.title)}</h2>${badgeHTML(node.status)}</div>
+    ${mainContent?`<div class="detail-body">${mainContent}</div>`:""}
+    ${topicHTML}
+  </article>`;
+}
+function keepSelectedComfortablyVisible(){
+  requestAnimationFrame(()=>{
+    const el=treeList.querySelector(`[data-id="${CSS.escape(selectedId)}"]`); if(!el)return;
+    const p=treePanel.getBoundingClientRect(), r=el.getBoundingClientRect();
+    if(r.top<p.top+70 || r.bottom>p.bottom-70) el.scrollIntoView({behavior:"smooth",block:"center"});
+  });
+}
+document.getElementById("expandAll").addEventListener("click",()=>{for(const n of NODES) if(hasNavChildren(n.node_id)) expanded.add(n.node_id);renderTree()});
+document.getElementById("collapseAll").addEventListener("click",()=>{expanded.clear();expanded.add("root");selectedId="root";renderTree();renderDetail();treePanel.scrollTo({top:0,behavior:"smooth"})});
+window.addEventListener("resize",()=>renderTree());
+renderTree(); renderDetail();
+</script>
+</body>
+</html>
