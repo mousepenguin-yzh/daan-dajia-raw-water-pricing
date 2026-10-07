@@ -190,7 +190,7 @@ function renderTree(){
 function contentHTML(node, clsPrefix="detail"){
   const parts=[];
   if(node.summary && String(node.summary).trim()) parts.push(`<p class="${clsPrefix}-summary">${escapeHtml(node.summary)}</p>`);
-  if(node.details && String(node.details).trim()) parts.push(`<p class="${clsPrefix}-text">${escapeHtml(node.details)}</p>`);
+  if(node.details && String(node.details).trim()) parts.push(`<p class="${clsPrefix}-text">${escapeHtml(node.details).replace(/\r\n|\r|\n/g,"<br>")}</p>`);
   return parts.join("");
 }
 function renderDetail(){
